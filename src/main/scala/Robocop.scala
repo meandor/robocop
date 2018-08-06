@@ -27,7 +27,7 @@ object Robocop extends LazyLogging {
         logger.info(s"Syncing files: " + shoppingList.mkString("\n"))
 
         val tmpFolder = s"./tmp/${System.currentTimeMillis()}"
-        val localShoppingListItems = Sink.copyToLocal(syncingUser, shoppingList, tmpFolder, HTTPCybernetic)
+        val transferList = Sink.copyToLocal(syncingUser, shoppingList, tmpFolder, HTTPCybernetic)
 
 
       } catch {
