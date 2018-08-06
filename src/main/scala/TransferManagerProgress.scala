@@ -10,10 +10,13 @@ object TransferManagerProgress extends LazyLogging { // waits for the transfer t
     catch {
       case e: AmazonServiceException =>
         logger.error("Amazon service error: " + e.getMessage, e)
+        System.exit(1)
       case e: AmazonClientException =>
         logger.error("Amazon client error: " + e.getMessage, e)
+        System.exit(1)
       case e: InterruptedException =>
         logger.error("Transfer interrupted: " + e.getMessage, e)
+        System.exit(1)
     }
   }
 
