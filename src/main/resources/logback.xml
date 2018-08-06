@@ -1,0 +1,16 @@
+<configuration>
+    <contextName>robocop</contextName>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%gray(%date{HH:mm:ss.SSS}) [%thread] %highlight(%-5level) %cyan(%logger{15}) %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="robocop" level="info"/>
+
+    <root level="${log_level:-info}">
+        <appender-ref ref="${log_appender:-consoleAppender}"/>
+    </root>
+
+</configuration>
