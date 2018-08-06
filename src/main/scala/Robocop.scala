@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException
 
+import com.amazonaws.AmazonServiceException
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.parallel.ParSeq
@@ -28,11 +29,18 @@ object Robocop extends LazyLogging {
 
         val tmpFolder = s"./tmp/${System.currentTimeMillis()}"
         val transferList = Sink.copyToLocal(syncingUser, shoppingList, tmpFolder, HTTPCybernetic)
+        transferList.foreach(Target.uploadFileToS3)
 
-
+        logger.info("Done uploading, exiting")
       } catch {
-        case _: FileNotFoundException => logger.warn("The specified shoppingList could not be found/accessed")
-        case e: Throwable => logger.error(e.getMessage)
+        case _: FileNotFoundException =>
+          logger.warn("The specified shoppingList could not be found/accessed")
+        case ex: AmazonServiceException =>
+          logger.error(ex.getErrorMessage, ex)
+          System.exit(1)
+        case ex: Throwable =>
+          logger.error(ex.getMessage)
+          System.exit(1)
       }
     }
   }
