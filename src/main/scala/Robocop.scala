@@ -1,4 +1,4 @@
-import java.io.{File, FileNotFoundException}
+import java.io.FileNotFoundException
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -10,21 +10,23 @@ object Robocop extends LazyLogging {
 
   type ShoppingList = ParSeq[String]
 
-  def download(url: String, filename: String) = {
-    import java.net.URL
 
-    import sys.process._
-    new URL(url) #> new File(filename) !!
-  }
+  def copyToLocal(user: String, shoppingList: ShoppingList, tmpFolder: String, adapter: Cybernetics): ParSeq[String] = {
+    shoppingList.map(shoppingListItem => {
+      if (!adapter.fileExists(shoppingListItem)) {
+        throw new FileNotFoundException("File was not found")
+      }
 
-  def downloadFile(url: String, tmpFolder: String): String = {
-    val filename = tmpFolder + "/" + url.split("/").last
-    download(url, filename)
-    filename
-  }
+      if (!adapter.hasAccess(user, shoppingListItem)) {
+        throw new IllegalArgumentException("User has no access to that data")
+      }
 
-  def copyToLocal(shoppingList: ShoppingList, tmpFolder: String): ParSeq[String] = {
-    shoppingList.map(shoppingListItem => downloadFile(shoppingListItem, tmpFolder))
+      if (!adapter.isCloudAllowed(shoppingListItem)) {
+        throw new IllegalArgumentException("Dataset not allowed to be transferred to cloud")
+      }
+
+      adapter.downloadFile(shoppingListItem, tmpFolder)
+    })
   }
 
   def parseShoppingList(shoppingListFilePath: String): ShoppingList = {
@@ -43,7 +45,7 @@ object Robocop extends LazyLogging {
         logger.info(s"Starting syncing as user: $syncingUser")
         logger.info(s"Syncing files: " + shoppingList.mkString("\n"))
 
-        val localShoppingListItems = copyToLocal(shoppingList, s"./tmp/${System.currentTimeMillis()}")
+        val localShoppingListItems = copyToLocal(syncingUser, shoppingList, s"./tmp/${System.currentTimeMillis()}", HTTPCybernetic)
 
 
       } catch {

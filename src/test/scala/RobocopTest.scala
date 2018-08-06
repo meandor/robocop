@@ -16,14 +16,35 @@ class RobocopTest extends FeatureSpec with Matchers {
   }
 
   feature("Copy shopping list files locally") {
-    scenario("copy one file") {
+    scenario("copy one existing file") {
       val downloadFolder = "src/test/resources/tmp"
       val expectedDownloadedFile = "src/test/resources/tmp/Example.jpg"
       Files.deleteIfExists(Paths.get(expectedDownloadedFile))
-      val copiedFiles = Robocop.copyToLocal(Seq("https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder)
+      val copiedFiles = Robocop.copyToLocal("foo", Seq("https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder, HTTPCybernetic)
 
       copiedFiles should contain theSameElementsAs Seq(expectedDownloadedFile)
       Files.exists(Paths.get(expectedDownloadedFile)) shouldBe true
+    }
+
+    scenario("copy non existing file") {
+      val downloadFolder = "src/test/resources/tmp"
+      val nonExistingFileCybernetics = new FauxCybernetic(true, true, false)
+
+      an[FileNotFoundException] should be thrownBy Robocop.copyToLocal("foo", Seq("http://foo", "https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder, nonExistingFileCybernetics)
+    }
+
+    scenario("copy not cloud allowed file") {
+      val downloadFolder = "src/test/resources/tmp"
+      val nonExistingFileCybernetics = new FauxCybernetic(true, false, true)
+
+      an[IllegalArgumentException] should be thrownBy Robocop.copyToLocal("foo", Seq("http://foo", "https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder, nonExistingFileCybernetics)
+    }
+
+    scenario("copy no access to file") {
+      val downloadFolder = "src/test/resources/tmp"
+      val nonExistingFileCybernetics = new FauxCybernetic(false, true, true)
+
+      an[IllegalArgumentException] should be thrownBy Robocop.copyToLocal("foo", Seq("http://foo", "https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder, nonExistingFileCybernetics)
     }
   }
 }
