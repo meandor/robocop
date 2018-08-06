@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException
 import java.nio.file.{Files, Paths}
+import java.security.MessageDigest
 
 import org.scalatest.{FeatureSpec, Matchers}
 
@@ -45,6 +46,27 @@ class RobocopTest extends FeatureSpec with Matchers {
       val nonExistingFileCybernetics = new FauxCybernetic(false, true, true)
 
       an[IllegalArgumentException] should be thrownBy Robocop.copyToLocal("foo", Seq("http://foo", "https://upload.wikimedia.org/wikipedia/en/a/a9/Example.jpg").par, downloadFolder, nonExistingFileCybernetics)
+    }
+  }
+
+  feature("Extract study name for datasets file") {
+    scenario("one dataset in one study") {
+      Robocop.studyName("/bhctestZone/bhcbio/research_studies/332_foo/datasets/abc.csv") shouldBe "332_foo"
+    }
+
+    scenario("multiple datasets in one study") {
+      Robocop.studyName("/bhcbioZone/bhcbio/research_studies/123_bar/foo/abc.csv") shouldBe "123_bar"
+      Robocop.studyName("/bhcbioZone/bhcbio/research_studies/123_bar/foo1/abc.csv") shouldBe "123_bar"
+    }
+  }
+
+  feature("Extract bucket name from datasets file") {
+    def md5(plain: String) = {
+      MessageDigest.getInstance("MD5").digest(plain.getBytes).map("%02x".format(_)).mkString
+    }
+
+    scenario("one dataset in one study") {
+      Robocop.bucketName("/bhctestZone/bhcbio/research_studies/332_foo/datasets/abc.csv") shouldBe "robocop-" + md5("332_foo")
     }
   }
 }

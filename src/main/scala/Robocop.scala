@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException
+import java.security.MessageDigest
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -10,6 +11,19 @@ object Robocop extends LazyLogging {
 
   type ShoppingList = ParSeq[String]
 
+  val preSalt = "robocop-"
+
+  def studyName(filePath: String): String = {
+    val pattern = "^.*_studies/(\\d+_\\w+)/.*$".r
+    val pattern(study) = filePath
+    study
+  }
+
+  def bucketName(filePath: String): String = {
+    val study = studyName(filePath)
+    preSalt +
+      MessageDigest.getInstance("MD5").digest(study.getBytes).map("%02x".format(_)).mkString
+  }
 
   def copyToLocal(user: String, shoppingList: ShoppingList, tmpFolder: String, adapter: Cybernetics): ParSeq[String] = {
     shoppingList.map(shoppingListItem => {
