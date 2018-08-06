@@ -19,6 +19,10 @@ object Target extends LazyLogging {
       MessageDigest.getInstance("MD5").digest(study.getBytes).map("%02x".format(_)).mkString
   }
 
+  def keyName(filePath: String): String = {
+    filePath.split("/").last
+  }
+
   def uploadFileToS3(transferItem: TransferItem): Unit = {
     val localFile = new File(transferItem.localPath)
     val targetBucket = bucketName(transferItem.originalPath)
@@ -27,7 +31,7 @@ object Target extends LazyLogging {
       throw new IllegalArgumentException(s"Bucket ($targetBucket) does not exist")
     }
 
-    val key = transferItem.localPath.split("/").last
+    val key = keyName(transferItem.localPath)
     val transferManager: TransferManager = TransferManagerBuilder.standard().withS3Client(s3).withMultipartUploadThreshold(multipartThreshold).build()
 
     val transfer = transferManager.upload(targetBucket, key, localFile)
