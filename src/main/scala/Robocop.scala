@@ -29,17 +29,25 @@ object Robocop extends LazyLogging {
 
         val tmpFolder = s"./tmp/${System.currentTimeMillis()}"
         val transferList = Sink.copyToLocal(syncingUser, shoppingList, tmpFolder, HTTPCybernetic)
-        transferList.foreach(Target.uploadFileToS3)
+        transferList.foreach(transferItem =>
+          try {
+            Target.uploadFileToS3(transferItem)
+          } catch {
+            case ex: AmazonServiceException =>
+              logger.error(ex.getErrorMessage, ex)
+              System.exit(1)
+            case ex: Throwable =>
+              logger.error(ex.getMessage, ex)
+              System.exit(1)
+          })
 
         logger.info("Done uploading, exiting")
       } catch {
         case _: FileNotFoundException =>
           logger.warn("The specified shoppingList could not be found/accessed")
-        case ex: AmazonServiceException =>
-          logger.error(ex.getErrorMessage, ex)
-          System.exit(1)
+          System.exit(0)
         case ex: Throwable =>
-          logger.error(ex.getMessage)
+          logger.error(ex.getMessage, ex)
           System.exit(1)
       }
     }
