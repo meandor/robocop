@@ -11,7 +11,7 @@ object Robocop extends LazyLogging {
 
   type ShoppingList = ParSeq[String]
 
-  val preSalt = "robocop-"
+  val bucketPrefix = "robocop-"
 
   def studyName(filePath: String): String = {
     val pattern = "^.*_studies/(\\d+_\\w+)/.*$".r
@@ -21,7 +21,7 @@ object Robocop extends LazyLogging {
 
   def bucketName(filePath: String): String = {
     val study = studyName(filePath)
-    preSalt +
+    bucketPrefix +
       MessageDigest.getInstance("MD5").digest(study.getBytes).map("%02x".format(_)).mkString
   }
 
@@ -69,14 +69,3 @@ object Robocop extends LazyLogging {
     }
   }
 }
-
-//  val s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.EU_CENTRAL_1).build()
-//
-//  val buckets = s3.listBuckets()
-//  System.out.println("Your Amazon S3 buckets are:")
-//
-//  import scala.collection.JavaConversions._
-//
-//  for (b <- buckets) {
-//    System.out.println("* " + b.getName)
-//  }
