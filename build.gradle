@@ -21,3 +21,7 @@ repositories {
         url "https://raw.github.com/DICE-UNC/DICE-Maven/master/releases"
     }
 }
+
+version = '0.1.0-SNAPSHOT'
+group = 'com.github.meandor'
+mainClassName = 'Robocop'
