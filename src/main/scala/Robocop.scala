@@ -63,7 +63,7 @@ object Robocop extends LazyLogging {
 
 
       } catch {
-        case e: FileNotFoundException => logger.warn("The specified shoppingList could not be found/accessed")
+        case _: FileNotFoundException => logger.warn("The specified shoppingList could not be found/accessed")
         case e: Throwable => logger.error(e.getMessage)
       }
     }
