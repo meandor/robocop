@@ -11,9 +11,10 @@ object Sink {
   type TransferList = ParSeq[TransferItem]
 
   def studyName(filePath: String): String = {
-    val pattern = "^.*_studies/(\\d+_\\w+)/.*$".r
-    val pattern(study) = filePath
-    study
+//    val pattern = "^.*_studies/(\\d+_\\w+)/.*$".r
+//    val pattern(study) = filePath
+//    study
+    "foobar"
   }
 
   def copyToLocal(user: String, shoppingList: ShoppingList, tmpFolder: String, adapter: Cybernetics): TransferList = {
