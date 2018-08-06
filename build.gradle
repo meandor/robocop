@@ -1,5 +1,6 @@
 plugins {
     id 'scala'
+    id 'application'
 }
 
 def scalaVersion = '2.12'
