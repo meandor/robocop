@@ -40,7 +40,6 @@ object TransferManagerProgress extends LazyLogging { // waits for the transfer t
       val so_far = progress.getBytesTransferred
       val total = progress.getTotalBytesToTransfer
       val pct = progress.getPercentTransferred
-      eraseProgressBar()
       printProgressBar(pct)
     } while ( {
       !xfer.isDone
@@ -58,11 +57,5 @@ object TransferManagerProgress extends LazyLogging { // waits for the transfer t
     val filled_bar = "########################################"
     val amt_full = (bar_size * (pct / 100.0)).toInt
     logger.info("  [%s%s]".format(filled_bar.substring(0, amt_full), empty_bar.substring(0, bar_size - amt_full)))
-  }
-
-  // erases the progress bar.
-  def eraseProgressBar(): Unit = { // erase_bar is bar_size (from printProgressBar) + 4 chars.
-    val erase_bar = "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b"
-    logger.info(erase_bar.format())
   }
 }
